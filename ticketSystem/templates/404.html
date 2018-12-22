@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	
+<div class="container">
+    <div class="row text-center mt-5">
+        <div class="col">
+            <div class="error-template">
+                <h1>
+                    Oops!</h1>
+                <h2 class="text-danger font-weight-bold">
+                    404 Not Found</h2>
+                <div class="error-details mt-2">
+                    <h4>Sorry, an error has occured, Requested page not found!</h4>
+                </div>
+                <div class="error-actions mt-3">
+                    <a class = "btn btn-success" href="{% url 'login' %}">
+                        Take Me Home </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

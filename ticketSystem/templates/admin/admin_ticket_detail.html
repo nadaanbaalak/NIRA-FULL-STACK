@@ -1,0 +1,233 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+    <title>Ticket System</title>
+
+    <style type="text/css">
+    	@import url(https://fonts.googleapis.com/css?family=Lato:400,700);
+@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+.chat .chat-history {
+  padding: 30px 30px 20px;
+  border-bottom: 2px solid white;
+}
+.chat .chat-history .message-data {
+  margin-bottom: 15px;
+}
+.chat .chat-history .message-data-time {
+  color: #a8aab1;
+  padding-left: 6px;
+}
+.chat .chat-history .message {
+  color: white;
+  padding: 18px 20px;
+  line-height: 26px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  width: 90%;
+  position: relative;
+}
+.chat .chat-history .message:after {
+content: "";
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    border-width: 0 15px 15px;
+    border-style: solid;
+    border-color: #CCDBDC transparent;
+    display: block;
+    width: 0;
+}
+.chat .chat-history .you-message {
+  background: #CCDBDC;
+  color:#003366;
+}
+.chat .chat-history .me-message {
+  background: #E9724C;
+}
+.chat .chat-history .me-message:after {
+  border-color: #E9724C transparent;
+    right: 20px;
+    top: -15px;
+    left: auto;
+    bottom:auto;
+}
+.chat .chat-message {
+  padding: 30px;
+}
+.chat .chat-message .fa-file-o, .chat .chat-message .fa-file-image-o {
+  font-size: 16px;
+  color: gray;
+  cursor: pointer;
+}
+
+.chat-ul li{
+    list-style-type: none;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.float-right {
+  float: right;
+}
+
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+.you {
+  color: #CCDBDC;
+}
+
+.me {
+  color: #E9724C;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Raleway",sans-serif;
+    color: #003366;
+}
+
+    </style>
+  
+
+  </head>
+
+  <body>
+
+
+                
+
+    
+	<div class="container clearfix">
+		<h2 class="text-center font-weight-bold"><u>Ticket id : {{ticket.pk}}</u></h2>
+		<a class = "btn btn-primary float-left" href="{% url 'admin_home' %} ">Back to Home</a>
+			{% if ticket.is_resolved %}
+    			<h3 class="text-center text-danger">Closed</h3>
+    			{% else %}
+    			<h3 class="text-center text-success">Open</h3>
+    			
+    			{% endif %}
+		<h3 class="text-center">Subject : {{ticket.subject}}</h3>
+    {% if ticket.is_resolved is not True %}
+    <form method="post" action="{% url 'admin_ticket_update' pk=ticket.pk %}">
+                <input type="hidden" name="ticket_pk" id = "ticket_pk" value="{{ticket.pk}}">
+                {% csrf_token %}
+                  
+                       
+                  
+                  <div class="form-group text-center">
+                      <button type="submit" class="btn btn-danger">Mark Resolved</button>
+                  </div>
+                         
+              </form>
+              {% endif %}
+	    <div class="chat">   
+	      <div class="chat-history">
+	        <ul class="chat-ul">
+				{% for comment in ticket.comment_set.all %}
+					{% if comment.is_admin_response %}
+						<li class="clearfix">
+							<div class="message-data align-right">
+	              				<span class="message-data-name">Admin</span> <i class="fa fa-circle me"></i>
+	            			</div>
+	            			<div class="message me-message float-right">{{comment.text}}</div>
+						</li>
+					{% else %}
+						<li class="clearfix">
+	            			<div class="message-data">
+	              				<span class="message-data-name">{{comment.ticket.customer.user.username}}</span> <i class="fa fa-circle you"></i>
+	            			</div>
+	            			<div class="message you-message"> {{comment.text}}</div>
+	          			</li>
+	          		{% endif %}
+				{% endfor %}
+
+				{% if ticket.is_resolved is not True %}
+				<li class="clearfix">
+        			<div class="message-data align-right">
+          				<span class="message-data-name">Admin</span> <i class="fa fa-circle me"></i>
+        			</div>
+        			<div class="message me-message float-right"> 
+					    <form method="post" action="{% url 'add_reply' %}">
+					    	<input type="hidden" name="ticket_pk" id = "ticket_pk" value="{{ticket.pk}}">
+					    	{% csrf_token %}
+					        
+					             
+					        <div class="form-group">
+					            <textarea class="form-control" type="textarea" id="text" name="text" placeholder="Message" maxlength="140" rows="7" required></textarea>
+					        </div>
+					        <br>
+					        {% if form.errors %}
+					    		{% for field in form %}
+					        		{% for error in field.errors %}
+					            		<div class="alert alert-danger">
+					                		<strong>{{ error|escape }}</strong>
+					            		</div>
+					        		{% endfor %}
+					    		{% endfor %}
+					    		
+					    		{% for error in form.non_field_errors %}
+					        	<div class="alert alert-danger">
+					            	<strong>{{ error|escape }}</strong>
+					        	</div>
+					    		{% endfor %}
+							{% endif %}
+					        <div class="form-group">
+					            <button type="submit" class="btn btn-primary btn-block">Add Reply</button>
+					        </div>
+					               
+					    </form>
+        			</div>
+      			</li>							
+      			{% endif %}
+
+
+	        </ul>
+	        
+	      </div> <!-- end chat-history -->
+	      
+	    </div> <!-- end chat -->
+	   
+	  </div>
+	    
+    
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+  </body>
+</html>
+
+
+
+
