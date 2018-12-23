@@ -3,7 +3,7 @@ Admin Credential:
 username : admin
 password : admin
 
-2 users are already created
+2 users have already been created
 
 1) username : akash
    password : Akash@1997
